@@ -1,0 +1,23 @@
+cmake_minimum_required(VERSION 3.30)
+project(TinyGame)
+
+set(CMAKE_CXX_STANDARD 23)
+
+add_executable(TinyGame
+	Source/Main/main.cpp
+	Source/Graphics/GameApp.cpp
+	Source/Graphics/GameApp.h
+	Source/Utils/NonCopyable.h
+	Source/Utils/ArgsParser.cpp
+	Source/Utils/ArgsParser.h
+	Source/Containers/TSparseArray.cpp
+	Source/Containers/TSparseArray.h
+	Source/Containers/BitArray.cpp
+	Source/Containers/BitArray.h
+)
+
+add_subdirectory(3rdParty)
+
+find_package(SDL3 REQUIRED)
+target_link_libraries(TinyGame PRIVATE SDL3::SDL3-shared spdlog::spdlog)
+target_include_directories(TinyGame PRIVATE Source)
