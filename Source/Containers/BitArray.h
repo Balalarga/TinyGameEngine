@@ -5,15 +5,26 @@
 
 class BitArray {
 public:
-	using TChunk = uint64_t;
-	BitArray() = default;
-	explicit BitArray(uint32_t size);
+	using TStored = uint32_t;
+	static constexpr uint8_t BitsSize = sizeof(TStored) * 8;
 
+	~BitArray() = default;
 
-	bool Get(uint32_t index) const;
-	void Set(uint32_t index, bool val);
+	// If Index > Size returns -1
+	int8_t Get(uint64_t Index) const;
+	void SetNResize(uint64_t Index, bool Value);
+	[[maybe_unused]] bool Set(uint64_t Index, bool Value);
+
+	uint64_t Size() const;
+	void Resize(uint64_t NewSize);
+	void Clear();
+
+	const std::vector<TStored>& GetBits() const;
+
+	bool operator==(const BitArray& InBa) const;
+	int8_t operator[](uint64_t index) const;
 
 
 private:
-	std::vector<TChunk> _chunks;
+	std::vector<TStored> _bits;
 };

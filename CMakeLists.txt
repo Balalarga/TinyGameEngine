@@ -14,6 +14,8 @@ add_executable(TinyGame
 	Source/Containers/TSparseArray.h
 	Source/Containers/BitArray.cpp
 	Source/Containers/BitArray.h
+	Source/Containers/ChunkStorage.cpp
+	Source/Containers/ChunkStorage.h
 )
 
 add_subdirectory(3rdParty)
