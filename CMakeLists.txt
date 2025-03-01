@@ -3,8 +3,9 @@ project(TinyGame)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(TinyGame
-	Source/Main/main.cpp
+set(GAME_TARGET TinyGame)
+
+add_library(TinyGame STATIC
 	Source/Graphics/GameApp.cpp
 	Source/Graphics/GameApp.h
 	Source/Utils/NonCopyable.h
@@ -16,10 +17,14 @@ add_executable(TinyGame
 	Source/Containers/BitArray.h
 	Source/Containers/ChunkStorage.cpp
 	Source/Containers/ChunkStorage.h
+	Source/Containers/ChunkStorage.test.cpp
 )
 
-add_subdirectory(3rdParty)
+target_include_directories(TinyGame PUBLIC Source)
 
-find_package(SDL3 REQUIRED)
-target_link_libraries(TinyGame PRIVATE SDL3::SDL3-shared spdlog::spdlog)
-target_include_directories(TinyGame PRIVATE Source)
+add_executable(TinyGameApp
+	Source/Main/main.cpp
+)
+target_link_libraries(TinyGameApp PRIVATE TinyGame)
+
+add_subdirectory(3rdParty)
