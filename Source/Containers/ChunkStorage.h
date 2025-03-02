@@ -7,40 +7,44 @@
 
 class ChunkStorage {
 public:
-	explicit ChunkStorage(int64_t chunkSize = 2048);
-	using Ptr = uint8_t*;
+	using Chunk = std::vector<uint8_t>;
+	using Ptr = Chunk::value_type*;
+	using MemSize = int64_t;
+	using ChunkIdx = int64_t;
 
 
 private:
 	struct ChunkMemory {
-		int64_t chunkIdx;
+		ChunkIdx chunkIdx;
 		Ptr ptr;
 	};
 
 	struct MemoryInfo {
-		int64_t chunkIdx;
+		ChunkIdx chunkIdx;
 		Ptr ptr;
-		int64_t size;
+		MemSize size;
 	};
 
-	using FreePtrs = std::multimap<int64_t, MemoryInfo>;
+	using FreePtrs = std::multimap<MemSize, MemoryInfo>;
 	using FreePtrsIt = FreePtrs::iterator;
 	using ConstFreePtrsIt = FreePtrs::iterator;
 
 
 public:
-	int64_t GetChunkSize() const;
+	explicit ChunkStorage(MemSize chunkSize = 2048);
 
-	Ptr ReserveMemory(int64_t size);
+	MemSize GetChunkSize() const;
+
+	Ptr ReserveMemory(MemSize size);
 	bool DeleteMemory(Ptr ptr);
 	void Clear();
 
-	const std::vector<std::vector<uint8_t>>& GetChunks() const;
+	const std::vector<Chunk>& GetChunks() const;
 	const FreePtrs& GetFreeMemory() const;
 
 
 protected:
-	int64_t AddChunk();
+	ChunkIdx AddChunk();
 
 	void AddFreeMemory(const MemoryInfo& memory);
 	void RemoveFreeMemory(ConstFreePtrsIt&& it);
@@ -51,12 +55,12 @@ protected:
 
 
 private:
-	int64_t _chunkSize;
-	std::vector<std::vector<uint8_t>> _chunks;
+	MemSize _chunkSize;
+	std::vector<Chunk> _chunks;
 
 	struct EngagedInfo {
-		int64_t chunkIdx;
-		int64_t size;
+		ChunkIdx chunkIdx;
+		MemSize size;
 	};
 
 	std::map<Ptr, EngagedInfo> _engagedMemory;

@@ -5,11 +5,11 @@
 
 
 #ifndef CHUNK_STORAGE_ZERO_MEMORY
-#define CHUNK_STORAGE_ZERO_MEMORY 1
+#define CHUNK_STORAGE_ZERO_MEMORY 0
 #endif
 
 
-ChunkStorage::ChunkStorage(int64_t chunkSize): _chunkSize(chunkSize) {
+ChunkStorage::ChunkStorage(MemSize chunkSize): _chunkSize(chunkSize) {
 }
 
 bool ChunkStorage::DeleteMemory(Ptr ptr) {
@@ -30,17 +30,17 @@ bool ChunkStorage::DeleteMemory(Ptr ptr) {
 	return true;
 }
 
-int64_t ChunkStorage::GetChunkSize() const {
+ChunkStorage::MemSize ChunkStorage::GetChunkSize() const {
 	return _chunkSize;
 }
 
-ChunkStorage::Ptr ChunkStorage::ReserveMemory(int64_t size) {
+ChunkStorage::Ptr ChunkStorage::ReserveMemory(MemSize size) {
 	MemoryInfo memInfo;
 	if (auto closestIt = _freeMemInfo.upper_bound(size); closestIt != _freeMemInfo.end()) {
 		memInfo = closestIt->second;
 		RemoveFreeMemory(std::move(closestIt));
 	} else {
-		const int64_t newChunkIdx = AddChunk();
+		const ChunkIdx newChunkIdx = AddChunk();
 		memInfo = { newChunkIdx, _chunks[newChunkIdx].data(), _chunkSize };
 	}
 
@@ -57,14 +57,14 @@ void ChunkStorage::Clear() {
 	_chunks.clear();
 }
 
-int64_t ChunkStorage::AddChunk() {
+ChunkStorage::ChunkIdx ChunkStorage::AddChunk() {
 	auto& chunk =
 			#if CHUNK_STORAGE_ZERO_MEMORY
 			_chunks.emplace_back(_chunkSize, 0);
 	#else
 			_chunks.emplace_back(_chunkSize);
 	#endif
-	return static_cast<int64_t>(_chunks.size() - 1);
+	return static_cast<ChunkIdx>(_chunks.size() - 1);
 }
 
 void ChunkStorage::AddFreeMemory(const MemoryInfo& memory) {
@@ -104,6 +104,7 @@ std::optional<ChunkStorage::MemoryInfo> ChunkStorage::MergeFreeLeft(const Memory
 	if (leftFreeIt == _freePtrs.end())
 		--leftFreeIt;
 
+	// TODO: may be its not a good solution...
 	while (leftFreeIt != _freePtrs.begin() && leftFreeIt->second->second.chunkIdx != info.chunkIdx) {
 		--leftFreeIt;
 	}
@@ -127,11 +128,11 @@ std::optional<ChunkStorage::MemoryInfo> ChunkStorage::MergeFreeLeft(const Memory
 }
 
 std::optional<ChunkStorage::MemoryInfo> ChunkStorage::MergeFreeRight(const MemoryInfo& info) {
-	auto rightFreeIt = _freePtrs.upper_bound(info.ptr);
+	const auto rightFreeIt = _freePtrs.upper_bound(info.ptr);
 	if (rightFreeIt == _freePtrs.end())
 		return std::nullopt;
 
-	MemoryInfo freeInfo = rightFreeIt->second->second;
+	const MemoryInfo freeInfo = rightFreeIt->second->second;
 	if (info.chunkIdx != freeInfo.chunkIdx)
 		return std::nullopt;
 
@@ -144,7 +145,7 @@ std::optional<ChunkStorage::MemoryInfo> ChunkStorage::MergeFreeRight(const Memor
 	return MemoryInfo{ info.chunkIdx, info.ptr, freeInfo.size + info.size };
 }
 
-const std::vector<std::vector<uint8_t>>& ChunkStorage::GetChunks() const {
+const std::vector<ChunkStorage::Chunk>& ChunkStorage::GetChunks() const {
 	return _chunks;
 }
 
