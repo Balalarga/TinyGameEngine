@@ -3,6 +3,8 @@
 #include <string>
 
 #include <SDL3/SDL.h>
+
+#include "Events/IEventHandler.h"
 #include "Utils/NonCopyable.h"
 
 
@@ -30,4 +32,5 @@ private:
 	SDL_Window* _window = nullptr;
 	SDL_Renderer* _renderer = nullptr;
 	std::optional<InitParams> _initParams;
+	std::vector<IEventHandler> _eventHandles;
 };

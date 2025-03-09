@@ -22,6 +22,10 @@ SDL_AppResult GameApp::HandleSDLEvents(void* appstate, SDL_Event& event) {
 		return SDL_APP_SUCCESS;
 	}
 
+	for (IEventHandler& handler: _eventHandles) {
+		handler.Handle(event);
+	}
+
 	if (event.type == SDL_EVENT_KEY_DOWN) {
 		if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
 			return SDL_APP_SUCCESS;
@@ -56,5 +60,8 @@ std::optional<std::string> GameApp::InitImpl(InitParams&& params) {
 
 void GameApp::DestroyImpl() {
 	SDL_DestroyRenderer(_renderer);
+	_renderer = nullptr;
+
 	SDL_DestroyWindow(_window);
+	_window = nullptr;
 }

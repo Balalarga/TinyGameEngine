@@ -18,6 +18,8 @@ add_library(TinyGame STATIC
 	Source/Containers/ChunkStorage.cpp
 	Source/Containers/ChunkStorage.h
 	Source/Containers/ChunkStorage.test.cpp
+	Source/Events/IEventHandler.cpp
+	Source/Events/IEventHandler.h
 )
 
 target_include_directories(TinyGame PUBLIC Source)

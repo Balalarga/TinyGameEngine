@@ -12,6 +12,7 @@ struct NonCopyable {
 };
 
 struct NonMoveCopyable {
+	~NonMoveCopyable() = default;
 	NonMoveCopyable() = default;
 	NonMoveCopyable(const NonMoveCopyable&) = delete;
 	NonMoveCopyable& operator=(const NonMoveCopyable&) = delete;
