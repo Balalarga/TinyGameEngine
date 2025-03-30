@@ -4,7 +4,7 @@
 
 #include <SDL3/SDL.h>
 
-#include "Events/IEventHandler.h"
+#include "Events/ISDLEventHandler.h"
 #include "Utils/NonCopyable.h"
 
 
@@ -20,17 +20,26 @@ public:
 	static GameApp& Destroy();
 
 	SDL_AppResult HandleSDLEvents(void* appstate, SDL_Event& event);
-	SDL_AppResult IterageSDL(void* appstate);
+	SDL_AppResult IterateSDL(void* appstate);
+
+	void RequestQuit();
+
+	void RegisterEventHandler(ISDLEventHandler* handler);
+	void UnregisterEventHandler(ISDLEventHandler* handler);
 
 
 protected:
+	std::optional<std::string> InitImGui() const;
+	std::optional<std::string> OpenglAttrsInit() const;
 	std::optional<std::string> InitImpl(InitParams&& params);
 	void DestroyImpl();
 
 
 private:
 	SDL_Window* _window = nullptr;
-	SDL_Renderer* _renderer = nullptr;
+	SDL_GLContext _glContext = nullptr;
 	std::optional<InitParams> _initParams;
-	std::vector<IEventHandler> _eventHandles;
+	std::vector<ISDLEventHandler*> _eventHandles;
+
+	bool _bQuitRequested = false;
 };
